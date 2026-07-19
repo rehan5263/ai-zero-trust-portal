@@ -82,4 +82,37 @@ router.post('/upload', upload.single('payload'), async (req, res) => {
     }
 });
 
+/**
+ * @route   GET /api/vault/history
+ * @desc    Retrieve all cryptographic audit logs from cloud storage history
+ * @access  Protected (Zero-Trust Layer ready)
+ */
+router.get('/history', async (req, res) => {
+    try {
+        // Hamare naye dbService function ko call kiya
+        const { getAllAuditLogs } = require('../services/dbService');
+        const result = await getAllAuditLogs();
+
+        if (result.success) {
+            return res.status(200).json({
+                success: true,
+                count: result.logs.length,
+                logs: result.logs
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                error: "Failed to retrieve history from cloud ledger.",
+                details: result.error
+            });
+        }
+    } catch (globalError) {
+        console.error("🚨 History Route Exception Failure:", globalError.message);
+        return res.status(500).json({
+            success: false,
+            error: "Internal Server Protocol Exception Error during history fetch."
+        });
+    }
+});
+
 module.exports = router;

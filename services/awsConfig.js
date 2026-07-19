@@ -9,8 +9,13 @@ if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
 const ddbClient = new DynamoDBClient({
     region: process.env.AWS_REGION || 'ap-south-1',
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'MOCK_KEY_INITIAL',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'MOCK_SECRET_INITIAL'
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    },
+    // 🔥 ENFORCE TIMEOUTS TO PREVENT BLINKING STUCK CURSOR
+    requestHandler: {
+        connectionTimeout: 5000, // 5 seconds max to establish connection
+        socketTimeout: 5000     // 5 seconds max to wait for data packets
     }
 });
 
