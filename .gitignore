@@ -1,0 +1,18 @@
+# Node modules dependency engine
+node_modules/
+
+# Distributed runtime environments variables (Critical Keys)
+.env
+.env.vault
+.env.keys
+
+# Local caching structures
+.keys/
+
+# Local data cache and uploads staging
+temp/
+uploads/
+
+# Operating System temporary components
+.DS_Store
+Thumbs.db
