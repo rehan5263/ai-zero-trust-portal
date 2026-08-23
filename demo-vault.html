@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zero-Trust Storage Vault Demo</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body style="margin: 0; background-color: #0f172a;">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    function App() {
+      const [walletConnected, setWalletConnected] = React.useState(false);
+      const [isUploading, setIsUploading] = React.useState(false);
+      const [uploadStep, setUploadStep] = React.useState(0);
+      const [files, setFiles] = React.useState([
+        { name: 'Research_Paper.pdf', size: '2.4 MB', hash: '0x7f...3a91', status: 'Encrypted & Stored' },
+        { name: 'Project_Design.png', size: '5.1 MB', hash: '0x8c...4b22', status: 'Encrypted & Stored' }
+      ]);
+
+      const connectWallet = () => setWalletConnected(true);
+
+      const handleFileUpload = (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        setIsUploading(true);
+        setUploadStep(1);
+
+        setTimeout(() => setUploadStep(2), 1500);
+        setTimeout(() => setUploadStep(3), 3000);
+
+        setTimeout(() => {
+          setFiles([
+            { 
+              name: file.name, 
+              size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`, 
+              hash: `0x${Math.random().toString(16).substring(2, 8)}...${Math.random().toString(16).substring(2, 6)}`, 
+              status: 'Encrypted & Stored' 
+            },
+            ...files
+          ]);
+          setIsUploading(false);
+          setUploadStep(0);
+        }, 4500);
+      };
+
+      return (
+        <div style={{ color: '#f8fafc', minHeight: '100vh', fontFamily: 'sans-serif', padding: '20px' }}>
+          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px', borderBottom: '1px solid #334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '28px' }}>🛡️</span>
+              <h1 style={{ fontSize: '18px', margin: 0, fontWeight: 'bold' }}>Zero-Trust Vault</h1>
+            </div>
+            <button 
+              onClick={connectWallet}
+              style={{ backgroundColor: walletConnected ? '#10b981' : '#2563eb', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              {walletConnected ? '👛 Connected' : '👛 Connect'}
+            </button>
+          </header>
+
+          <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ backgroundColor: '#1e293b', border: '2px dashed #475569', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📤</div>
+              <h3 style={{ margin: '0 0 5px 0' }}>Upload File</h3>
+              <p style={{ color: '#94a3b8', fontSize: '12px' }}>Client-side AES-256 Encryption</p>
+              
+              <input type="file" id="fileInput" style={{ display: 'none' }} onChange={handleFileUpload} disabled={isUploading || !walletConnected} />
+              
+              <label 
+                htmlFor="fileInput" 
+                style={{ display: 'inline-block', marginTop: '10px', backgroundColor: walletConnected ? '#0284c7' : '#475569', color: '#fff', padding: '8px 16px', borderRadius: '6px', cursor: walletConnected ? 'pointer' : 'not-allowed', fontSize: '14px' }}
+              >
+                {walletConnected ? 'Select & Encrypt File' : 'Connect Wallet First'}
+              </label>
+
+              {isUploading && (
+                <div style={{ marginTop: '15px', backgroundColor: '#0f172a', padding: '10px', borderRadius: '8px', textAlign: 'left', fontSize: '12px' }}>
+                  <div style={{ color: uploadStep >= 1 ? '#38bdf8' : '#64748b' }}>🔒 1. Encryption {uploadStep > 1 && '✅'}</div>
+                  <div style={{ color: uploadStep >= 2 ? '#38bdf8' : '#64748b', marginTop: '5px' }}>💾 2. IPFS Upload {uploadStep > 2 && '✅'}</div>
+                  <div style={{ color: uploadStep >= 3 ? '#38bdf8' : '#64748b', marginTop: '5px' }}>⛓️ 3. Record Hash</div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', padding: '15px' }}>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>📊 Ledger</h3>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #334155', color: '#94a3b8' }}>
+                      <th style={{ padding: '8px' }}>File</th>
+                      <th style={{ padding: '8px' }}>IPFS Hash</th>
+                      <th style={{ padding: '8px' }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {files.map((f, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #334155' }}>
+                        <td style={{ padding: '8px' }}>📄 {f.name}</td>
+                        <td style={{ padding: '8px', fontFamily: 'monospace', color: '#a855f7' }}>{f.hash}</td>
+                        <td style={{ padding: '8px', color: '#10b981' }}>{f.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
+
